@@ -69,10 +69,16 @@ void AttachPCI(byte Pin, void (*UserFunc)(void), int Mode) //FIX use enumeration
 }
   
 boolean Trigger(byte Pin, int Mode) {
-  if((TestState(Pin) && Mode == 3)) return true; //If mode is rising, and rising is true
-  if((TestState(Pin) == false && Mode == 2)) return true; //If mode is fall, and falling is ture
-  if(Mode == 1) return true; //Else mode is change and trigger regardless 
-  return false;
+  //Equivelent implementation kept for ease of readability
+  // if((TestState(Pin) && Mode == 3)) return true; //If mode is rising, and rising is true
+  // if((TestState(Pin) == false && Mode == 2)) return true; //If mode is fall, and falling is ture
+  // if(Mode == 1) return true; //Else mode is change and trigger regardless 
+  // return false;
+
+
+  boolean PinVal = TestState(Pin);  //TESTING!
+  return (PinVal && Mode == 3) | (!PinVal && Mode == 2) | Mode == 1;  //TESTING!
+
 }
 
 boolean TestState(byte Pin){
@@ -122,7 +128,11 @@ ISR (PCINT0_vect) // handle pin change interrupt for D8 to D13 here
 
 ISR (PCINT1_vect) // handle pin change interrupt for D8 to D13 here
   {
+    // bitSet(PORTB, 6);
+    PORTB = PORTB | 0x40; //DEBUG! 
     if(Trigger(IntPin[1], TriggerMode[1])) GlobalFunc1(); //Only fun the function if trigger criteria is true 
+    // bitClear(PORTB, 6);
+    PORTB = PORTB & 0xBF; //DEBUG!
   }
   
 ISR (PCINT2_vect) // handle pin change interrupt for D8 to D13 here
